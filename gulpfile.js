@@ -22,9 +22,9 @@ const cssTaskHandler = () => {
 };
 
 const imagesTaskHandler = () => {
-  return src("./src/images/**/*.*")
+  return src("./src/images/*")
     .pipe(imagemin())
-    .pipe(dest("./images"))
+    .pipe(dest("./images/"))
     .pipe(browserSync.stream());
 };
 
@@ -43,7 +43,7 @@ const browserSyncTaskHandler = () => {
     "all",
     series(cssTaskHandler, browserSync.reload)
   );
-  watch("./src/images/**/*").on(
+  watch("./src/images/").on(
     "all",
     series(imagesTaskHandler, browserSync.reload)
   );
