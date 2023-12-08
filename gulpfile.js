@@ -12,40 +12,30 @@ const sass = gulpSass(dartSass);
 import bsc from "browser-sync";
 const browserSync = bsc.create();
 
-const htmlTaskHandler = () => {
-  return src("./src/*.html").pipe(dest("./dist"));
-};
-
 const cssTaskHandler = () => {
   return src("./src/scss/main.scss")
     .pipe(sass().on("error", sass.logError))
     .pipe(autoprefixer())
     .pipe(csso())
-    .pipe(dest("./dist/css"))
+    .pipe(dest("./styles/css"))
     .pipe(browserSync.stream());
 };
 
 const imagesTaskHandler = () => {
-  return src("./src/images/**/*.*")
+  return src("./src/images/*")
     .pipe(imagemin())
-    .pipe(dest("./dist/images"))
+    .pipe(dest("./images/"))
     .pipe(browserSync.stream());
 };
 
 const fontTaskHandler = () => {
-  return src("./src/fonts/**/*.*").pipe(dest("./dist/fonts"));
-};
-
-const cleanDistTaskHandler = () => {
-  return src("./dist", { read: false, allowEmpty: true }).pipe(
-    clean({ force: true })
-  );
+  return src("./src/fonts/**/*.*").pipe(dest("./styles/fonts"));
 };
 
 const browserSyncTaskHandler = () => {
   browserSync.init({
     server: {
-      baseDir: "./dist",
+      baseDir: "./",
     },
   });
 
@@ -53,24 +43,17 @@ const browserSyncTaskHandler = () => {
     "all",
     series(cssTaskHandler, browserSync.reload)
   );
-  watch("./src/*.html").on(
-    "change",
-    series(htmlTaskHandler, browserSync.reload)
-  );
-  watch("./src/images/**/*").on(
+  watch("./src/images/").on(
     "all",
     series(imagesTaskHandler, browserSync.reload)
   );
 };
 
-export const cleaning = cleanDistTaskHandler;
-export const html = htmlTaskHandler;
 export const css = cssTaskHandler;
 export const font = fontTaskHandler;
 export const images = imagesTaskHandler;
 
 export const build = series(
-  cleanDistTaskHandler,
-  parallel(htmlTaskHandler, cssTaskHandler, fontTaskHandler, imagesTaskHandler)
+  parallel(cssTaskHandler, fontTaskHandler, imagesTaskHandler)
 );
 export const dev = series(build, browserSyncTaskHandler);
